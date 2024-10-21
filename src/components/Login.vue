@@ -47,7 +47,7 @@ export default {
   methods: {
     login() {
       axios
-        .post("http://localhost:1337/login", {
+        .post("https://stockapp-server-eight.vercel.app/login", {
           username: this.username,
           password: this.password,
         })

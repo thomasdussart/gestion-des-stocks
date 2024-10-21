@@ -81,7 +81,7 @@ export default {
   },
   mounted() {
     axios
-      .get("http://localhost:1337/products-economat")
+      .get("https://stockapp-server-eight.vercel.app/products-economat")
       .then(() => {
         this.products = response.data;
       })
@@ -122,10 +122,13 @@ export default {
       const parsedUser = JSON.parse(user);
 
       axios
-        .patch(`http://localhost:1337/products-economat/${id}`, {
-          count: count,
-          user: parsedUser,
-        })
+        .patch(
+          `https://stockapp-server-eight.vercel.app/products-economat/${id}`,
+          {
+            count: count,
+            user: parsedUser,
+          }
+        )
         .then(() => {
           const index = this.products.findIndex((product) => product.id === id);
           this.products[index].count = count;
@@ -136,7 +139,9 @@ export default {
     },
     remove(id) {
       axios
-        .delete(`http://localhost:1337/products-economat/${id}`)
+        .delete(
+          `https://stockapp-server-eight.vercel.app/products-economat/${id}`
+        )
         .then(() => {
           const index = this.products.findIndex((product) => product.id === id);
           this.products.splice(index, 1);

@@ -483,7 +483,7 @@ export default {
       if (!this.selected) return;
       try {
         const response = await axios.get(
-          `http://localhost:1337/products-${this.selected.toLowerCase()}`
+          `https://stockapp-server-eight.vercel.app/products-${this.selected.toLowerCase()}`
         );
         console.log(this.selected);
         return (this.products = response.data);
@@ -507,7 +507,7 @@ export default {
   methods: {
     getDeliveries() {
       axios
-        .get("http://localhost:1337/livraisons")
+        .get("https://stockapp-server-eight.vercel.app/livraisons")
         .then((response) => {
           this.livraisons = response.data;
         })
@@ -527,10 +527,13 @@ export default {
     saveDelivery() {
       console.log(this.selectedItem.id);
       axios
-        .patch(`http://localhost:1337/livraisons/${this.selectedItem.id}`, {
-          whoDelivering: this.selectedItem.whoDelivering,
-          status: this.selectedItem.status,
-        })
+        .patch(
+          `https://stockapp-server-eight.vercel.app/livraisons/${this.selectedItem.id}`,
+          {
+            whoDelivering: this.selectedItem.whoDelivering,
+            status: this.selectedItem.status,
+          }
+        )
         .then(() => {
           this.getDeliveries();
           this.closeDeliveryDialog();
@@ -542,7 +545,7 @@ export default {
 
     fetchUsers() {
       axios
-        .get("http://localhost:1337/users")
+        .get("https://stockapp-server-eight.vercel.app/users")
         .then((response) => {
           this.users = response.data;
         })
@@ -556,7 +559,7 @@ export default {
     },
     fetchNotifications() {
       axios
-        .get("http://localhost:1337/notifications")
+        .get("https://stockapp-server-eight.vercel.app/notifications")
         .then((response) => {
           let numberOfNotifications = response.data.filter(
             (notification) => notification.isRead === false
@@ -574,7 +577,10 @@ export default {
     },
     async notificationMarkAllAsRead() {
       try {
-        await axios.patch("http://localhost:1337/notifications", { isRead: 1 });
+        await axios.patch(
+          "https://stockapp-server-eight.vercel.app/notifications",
+          { isRead: 1 }
+        );
         await this.fetchNotifications();
         this.notifications.forEach((notification) => {
           notification.isRead = true;
@@ -585,9 +591,12 @@ export default {
     },
     async notificationMarkAsRead(id, index) {
       try {
-        await axios.patch(`http://localhost:1337/notifications/${id}`, {
-          isRead: 1,
-        });
+        await axios.patch(
+          `https://stockapp-server-eight.vercel.app/notifications/${id}`,
+          {
+            isRead: 1,
+          }
+        );
         await this.fetchNotifications();
         this.notifications[index].isRead = true;
       } catch (error) {
@@ -601,7 +610,7 @@ export default {
     showNotifications() {
       this.dialog = true; // Open the notifications dialog
       axios
-        .get("http://localhost:1337/notifications")
+        .get("https://stockapp-server-eight.vercel.app/notifications")
         .then((response) => {
           this.notifications = response.data.sort(
             (a, b) => new Date(b.date) - new Date(a.date)
@@ -625,7 +634,7 @@ export default {
         if (result.isConfirmed) {
           axios
             .delete(
-              `http://localhost:1337/products-${this.selected.toLowerCase()}/${
+              `https://stockapp-server-eight.vercel.app/products-${this.selected.toLowerCase()}/${
                 product.id
               }`
             )
@@ -633,7 +642,7 @@ export default {
               this.$forceUpdate();
               axios
                 .get(
-                  `http://localhost:1337/products-${this.selected.toLowerCase()}`
+                  `https://stockapp-server-eight.vercel.app/products-${this.selected.toLowerCase()}`
                 )
                 .then((response) => {
                   this.products = response.data;
@@ -670,7 +679,7 @@ export default {
 
         axios
           .patch(
-            `http://localhost:1337/products-${this.selected.toLowerCase()}/${
+            `https://stockapp-server-eight.vercel.app/products-${this.selected.toLowerCase()}/${
               this.editProductForm.id
             }`,
             {
@@ -687,7 +696,7 @@ export default {
           .then(() => {
             axios
               .get(
-                `http://localhost:1337/products-${this.selected.toLowerCase()}`
+                `https://stockapp-server-eight.vercel.app/products-${this.selected.toLowerCase()}`
               )
               .then((response) => {
                 this.products = response.data;
@@ -714,13 +723,17 @@ export default {
         cancelButtonText: "Annuler",
       }).then((result) => {
         if (result.isConfirmed) {
-          axios.delete(`http://localhost:1337/users/${user.id}`).then(() => {
-            axios.get("http://localhost:1337/users").then((response) => {
-              this.users = response.data;
-              this.$forceUpdate();
+          axios
+            .delete(`https://stockapp-server-eight.vercel.app/users/${user.id}`)
+            .then(() => {
+              axios
+                .get("https://stockapp-server-eight.vercel.app/users")
+                .then((response) => {
+                  this.users = response.data;
+                  this.$forceUpdate();
+                });
+              Swal.fire("Supprimé!", "L'utilisateur a été supprimé", "success");
             });
-            Swal.fire("Supprimé!", "L'utilisateur a été supprimé", "success");
-          });
         }
       });
     },
@@ -752,7 +765,7 @@ export default {
         this.editUserForm.role
       );
       axios
-        .post(`http://localhost:1337/users`, {
+        .post(`https://stockapp-server-eight.vercel.app/users`, {
           username: this.saveUserForm.name,
           password: this.saveUserForm.password,
           role: this.saveUserForm.role,
@@ -764,9 +777,11 @@ export default {
             "success"
           );
           this.closeEditUserDialog();
-          axios.get("http://localhost:1337/users").then((response) => {
-            this.users = response.data;
-          });
+          axios
+            .get("https://stockapp-server-eight.vercel.app/users")
+            .then((response) => {
+              this.users = response.data;
+            });
         })
         .catch((error) => {
           console.log(error);
@@ -777,16 +792,21 @@ export default {
       if (this.$refs.editUserForm.validate()) {
         console.log(this.editUserForm.role);
         axios
-          .patch(`http://localhost:1337/users-edit/${this.editUserForm.id}`, {
-            username: this.editUserForm.name,
-            role: this.editUserForm.role,
-          })
+          .patch(
+            `https://stockapp-server-eight.vercel.app/users-edit/${this.editUserForm.id}`,
+            {
+              username: this.editUserForm.name,
+              role: this.editUserForm.role,
+            }
+          )
           .then((response) => {
             Swal.fire("Modifié!", "L'utilisateur a été modifié", "success");
             this.closeEditUserDialog();
-            axios.get("http://localhost:1337/users").then((response) => {
-              this.users = response.data;
-            });
+            axios
+              .get("https://stockapp-server-eight.vercel.app/users")
+              .then((response) => {
+                this.users = response.data;
+              });
           })
           .catch((error) => {
             console.log(error);
@@ -809,9 +829,12 @@ export default {
         if (result.isConfirmed) {
           let newRandomPassword = (Math.random() + 1).toString(36).substring(2);
           axios
-            .patch(`http://localhost:1337/users-reset-password/${user.id}`, {
-              password: newRandomPassword,
-            })
+            .patch(
+              `https://stockapp-server-eight.vercel.app/users-reset-password/${user.id}`,
+              {
+                password: newRandomPassword,
+              }
+            )
             .then((response) => {
               this.users = response.data;
             })
@@ -855,10 +878,13 @@ export default {
             return;
           }
           axios
-            .patch(`http://localhost:1337/users-change-password/${id}`, {
-              oldPassword,
-              newPassword,
-            })
+            .patch(
+              `https://stockapp-server-eight.vercel.app/users-change-password/${id}`,
+              {
+                oldPassword,
+                newPassword,
+              }
+            )
             .then((response) => {
               Swal.fire("Succès", "Mot de passe changé avec succès", "success");
             })

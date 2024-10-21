@@ -216,7 +216,9 @@ export default {
   methods: {
     fetchProducts() {
       axios
-        .get(`http://localhost:1337/products-${this.selected.toLowerCase()}`)
+        .get(
+          `https://stockapp-server-eight.vercel.app/products-${this.selected.toLowerCase()}`
+        )
         .then((response) => {
           this.products = response.data;
         })
@@ -255,7 +257,7 @@ export default {
 
         axios
           .patch(
-            `http://localhost:1337/products-${this.selected.toLowerCase()}/${
+            `https://stockapp-server-eight.vercel.app/products-${this.selected.toLowerCase()}/${
               this.editProductForm.id
             }`,
             {
@@ -272,7 +274,7 @@ export default {
           .then(() => {
             axios
               .get(
-                `http://localhost:1337/products-${this.selected.toLowerCase()}`
+                `https://stockapp-server-eight.vercel.app/products-${this.selected.toLowerCase()}`
               )
               .then((response) => {
                 this.products = response.data;
@@ -356,7 +358,7 @@ export default {
       console.log("Ordering products", orders);
 
       axios
-        .post("http://localhost:1337/commandes", orders)
+        .post("https://stockapp-server-eight.vercel.app/commandes", orders)
         .then((response) => {
           console.log("Products ordered successfully", response.data);
           this.selectedProducts = [];
@@ -408,10 +410,13 @@ export default {
             return;
           }
           axios
-            .patch(`http://localhost:1337/users-change-password/${id}`, {
-              oldPassword,
-              newPassword,
-            })
+            .patch(
+              `https://stockapp-server-eight.vercel.app/users-change-password/${id}`,
+              {
+                oldPassword,
+                newPassword,
+              }
+            )
             .then((response) => {
               Swal.fire("Succès", "Mot de passe changé avec succès", "success");
             })

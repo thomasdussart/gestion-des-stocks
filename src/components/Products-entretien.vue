@@ -107,7 +107,7 @@ export default {
   },
   mounted() {
     axios
-      .get("http://localhost:1337/products-entretien")
+      .get("https://stockapp-server-eight.vercel.app/products-entretien")
       .then((response) => {
         this.products = response.data;
         console.log(response.data);
@@ -119,7 +119,9 @@ export default {
   methods: {
     remove(id) {
       axios
-        .delete(`http://localhost:1337/products-entretien/${id}`)
+        .delete(
+          `https://stockapp-server-eight.vercel.app/products-entretien/${id}`
+        )
         .then((response) => {
           const index = this.products.findIndex((product) => product.id === id);
           this.products.splice(index, 1);
@@ -133,10 +135,13 @@ export default {
       const parsedUser = JSON.parse(user);
 
       axios
-        .patch(`http://localhost:1337/products-entretien/${id}`, {
-          count: count,
-          user: parsedUser,
-        })
+        .patch(
+          `https://stockapp-server-eight.vercel.app/products-entretien/${id}`,
+          {
+            count: count,
+            user: parsedUser,
+          }
+        )
         .then((response) => {
           const index = this.products.findIndex((product) => product.id === id);
           this.products[index].count = count;

@@ -164,12 +164,14 @@ export default {
     };
   },
   mounted() {
-    axios.get("http://localhost:1337/products-depot").then((response) => {
-      this.products = response.data.map((product) => ({
-        ...product,
-        orderCount: 1,
-      }));
-    });
+    axios
+      .get("https://stockapp-server-eight.vercel.app/products-depot")
+      .then((response) => {
+        this.products = response.data.map((product) => ({
+          ...product,
+          orderCount: 1,
+        }));
+      });
   },
   computed: {
     selectedProductsDetails() {
@@ -219,7 +221,7 @@ export default {
 
       axios
         .patch(
-          `http://localhost:1337/products-depot/${this.currentProduct.id}`,
+          `https://stockapp-server-eight.vercel.app/products-depot/${this.currentProduct.id}`,
           {
             count: this.newCount,
             previousCount: this.currentProduct.count,
@@ -314,7 +316,7 @@ export default {
       console.log("Ordering products", orders);
 
       axios
-        .post("http://localhost:1337/commandes", orders)
+        .post("https://stockapp-server-eight.vercel.app/commandes", orders)
         .then((response) => {
           console.log("Products ordered successfully", response.data);
           this.selectedProducts = [];
@@ -365,10 +367,13 @@ export default {
             return;
           }
           axios
-            .patch(`http://localhost:1337/users-change-password/${id}`, {
-              oldPassword,
-              newPassword,
-            })
+            .patch(
+              `https://stockapp-server-eight.vercel.app/users-change-password/${id}`,
+              {
+                oldPassword,
+                newPassword,
+              }
+            )
             .then((response) => {
               Swal.fire("Succès", "Mot de passe changé avec succès", "success");
             })
