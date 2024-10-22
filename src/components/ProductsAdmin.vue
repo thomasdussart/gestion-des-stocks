@@ -221,6 +221,13 @@
                   <v-btn @click="openDeliveryDialog(item)" color="primary">
                     Edit
                   </v-btn>
+                  <v-btn
+                    color="red darken-1"
+                    class="ml-2"
+                    @click="deleteDelivery(item)"
+                  >
+                    <v-icon small> mdi-delete </v-icon>
+                  </v-btn>
                 </template>
               </v-data-table>
             </v-window-item>
@@ -709,6 +716,35 @@ export default {
           });
         this.closeEditProductDialog();
       }
+    },
+
+    deleteDelivery(delivery) {
+      Swal.fire({
+        title: "Etes-vous certain de vouloir supprimer la livraison?",
+        text: "Vous ne pourrez pas revenir en arrière !",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Oui, supprimez-la !",
+        cancelButtonText: "Annuler",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .delete(
+              `https://stockapp-server-eight.vercel.app/livraisons/${delivery.id}`
+            )
+            .then(() => {
+              this.$forceUpdate();
+              axios
+                .get("https://stockapp-server-eight.vercel.app/livraisons")
+                .then((response) => {
+                  this.livraisons = response.data;
+                });
+              Swal.fire("Supprimé!", "La livraison a été supprimée", "success");
+            });
+        }
+      });
     },
 
     deleteUser(user) {
