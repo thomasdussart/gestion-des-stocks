@@ -1,64 +1,62 @@
 <template>
   <Fragment>
-    <v-responsive>
-      <!-- <v-btn class="mt-4 ml-4" color="primary" @click="logout"
-        >Se déconnecter</v-btn
+    <!-- <v-btn class="mt-4 ml-4" color="primary" @click="logout"
+      >Se déconnecter</v-btn
+    >
+    <v-btn class="mt-4 ml-4" @click="changePassword"
+      >Changer le mot de passe</v-btn
+    > -->
+    <v-row justify="end" class="mr-8 mt-4">
+      <v-menu
+        offset-y
+        :close-on-content-click="false"
+        transition="scale-transition"
+        left
       >
-      <v-btn class="mt-4 ml-4" @click="changePassword"
-        >Changer le mot de passe</v-btn
-      > -->
+        <!-- Activator: Profile picture with first letter of username -->
+        <template #activator="{ props }">
+          <v-btn v-bind="props" class="profile-avatar" icon>
+            <v-avatar color="primary" size="40">
+              <span class="white--text text-h6">{{ firstLetter }}</span>
+            </v-avatar>
+          </v-btn>
+        </template>
 
-      <v-row justify="end" class="mr-8 mt-4">
-        <v-menu
-          offset-y
-          :close-on-content-click="false"
-          transition="scale-transition"
-          left
-        >
-          <!-- Activator: Profile picture with first letter of username -->
-          <template #activator="{ props }">
-            <v-btn v-bind="props" class="profile-avatar" icon>
-              <v-avatar color="primary" size="40">
-                <span class="white--text text-h6">{{ firstLetter }}</span>
-              </v-avatar>
-            </v-btn>
-          </template>
+        <!-- Dropdown menu content -->
+        <v-list>
+          <v-list-item @click="logout">
+            <v-list-item-title>Se déconnecter</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="changePassword">
+            <v-list-item-title>Modifier le mot de passe</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </v-row>
+    <!-- MENU -->
 
-          <!-- Dropdown menu content -->
-          <v-list>
-            <v-list-item @click="logout">
-              <v-list-item-title>Se déconnecter</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="changePassword">
-              <v-list-item-title>Modifier le mot de passe</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-row>
+    <v-card class="mt-10">
+      <v-tabs v-model="tab" background-color="primary" align-tabs="center">
+        <v-tab value="product">Produits</v-tab>
+        <v-tab value="stock">Stock</v-tab>
+        <v-tab value="commande">Commande </v-tab
+        ><v-badge :content="selectedProducts.length" color="red" class="mt-4">
+        </v-badge>
+      </v-tabs>
 
-      <!-- MENU -->
-
-      <v-card class="mt-10">
-        <v-tabs v-model="tab" background-color="primary" align-tabs="center">
-          <v-tab value="product">Produits</v-tab>
-          <v-tab value="commande">Commande </v-tab
-          ><v-badge :content="selectedProducts.length" color="red" class="mt-4">
-          </v-badge>
-        </v-tabs>
-
-        <!-- SELECTION PRODUIT -->
-        <v-card-text>
-          <v-window v-model="tab">
-            <v-window-item value="product">
-              <!-- DATATABLE ENTRETIEN -->
-              <v-col cols="12">
-                <v-data-table
-                  :headers="entretienHeaders"
-                  :items="products"
-                  class="elevation-1"
-                  item-key="id"
-                >
-                  <!-- <template v-slot:item.history="{ item }">
+      <!-- SELECTION PRODUIT -->
+      <v-card-text>
+        <v-window v-model="tab">
+          <v-window-item value="product">
+            <!-- DATATABLE ENTRETIEN -->
+            <v-col cols="12">
+              <v-data-table
+                :headers="entretienHeaders"
+                :items="products"
+                class="elevation-1"
+                item-key="id"
+              >
+                <!-- <template v-slot:item.history="{ item }">
                   <v-list dense>
                     <v-list-item-group>
                       <v-list-item
@@ -80,86 +78,91 @@
                     </v-list-item-group>
                   </v-list>
                 </template> -->
-                  <template v-slot:[`item.actions`]="{ item }">
-                    <v-btn
-                      color="blue darken-1 mr-xxl-1 mr-xl-1 mr-l-1 mr-md-1 mb-sm-1 mb-xs-1 mt-sm-1 mt-xs-1"
-                      @click="editProduct(item)"
-                    >
-                      <v-icon small class=""> mdi-pencil </v-icon>
-                    </v-btn>
-                    <v-btn
-                      color="green darken-1"
-                      class="ml-xl-2"
-                      @click="addToOrder(item)"
-                      ><v-icon>mdi-plus</v-icon></v-btn
-                    >
-                  </template>
-                </v-data-table>
-              </v-col>
-            </v-window-item>
-
-            <!-- Edit Product Dialog -->
-            <v-dialog v-model="editProductDialog" max-width="600px">
-              <v-card class="p-4">
-                <v-card-title class="headline"
-                  >Modifier le produit</v-card-title
-                >
-                <v-card-text>
-                  <v-form ref="editProductForm">
-                    <v-number-input
-                      v-model="editProductForm.count"
-                      label="Quantité"
-                      required
-                    ></v-number-input>
-                  </v-form>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="red" @click="closeEditProductDialog"
-                    >Annuler</v-btn
+                <template v-slot:[`item.actions`]="{ item }">
+                  <v-btn color="blue darken-1" @click="editProduct(item)">
+                    <v-icon small class=""> mdi-pencil </v-icon>
+                  </v-btn>
+                  <v-btn
+                    color="green darken-1"
+                    class="ml-xl-2"
+                    @click="addToOrder(item)"
+                    ><v-icon>mdi-plus</v-icon></v-btn
                   >
-                  <v-btn color="green" @click="saveProduct">Sauvegarder</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+                </template>
+              </v-data-table>
+            </v-col>
+          </v-window-item>
 
-            <!-- Commande Tab -->
-            <v-window-item value="commande">
-              <v-col cols="12">
-                <v-data-table
-                  :headers="orderHeaders"
-                  :items="selectedProductsDetails"
-                  item-key="id"
-                  class="elevation-1"
+          <!-- Edit Product Dialog -->
+          <v-dialog v-model="editProductDialog" max-width="600px">
+            <v-card class="p-4">
+              <v-card-title class="headline">Modifier le produit</v-card-title>
+              <v-card-text>
+                <v-form ref="editProductForm">
+                  <v-number-input
+                    v-model="editProductForm.count"
+                    label="Quantité"
+                    required
+                  ></v-number-input>
+                </v-form>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="red" @click="closeEditProductDialog"
+                  >Annuler</v-btn
                 >
-                  <template v-slot:[`item.orderCount`]="{ item }">
-                    <div class="d-flex justify-center align-center">
-                      <v-text-field
-                        v-model="item.orderCount"
-                        type="number"
-                        min="1"
-                        :max="item.count"
-                        label="Quantité à commander"
-                        dense
-                      ></v-text-field>
-                    </div>
-                  </template>
-                  <template v-slot:[`item.action`]="{ item }">
-                    <v-btn color="red" @click="removeFromOrder(item)"
-                      ><v-icon>mdi-minus</v-icon></v-btn
-                    >
-                  </template>
-                </v-data-table>
+                <v-btn color="green" @click="saveProduct">Sauvegarder</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
 
-                <v-btn color="primary" class="mt-4" @click="orderProducts"
-                  >Commander</v-btn
-                >
-              </v-col>
-            </v-window-item>
-          </v-window>
-        </v-card-text>
-      </v-card>
-    </v-responsive>
+          <v-window-item value="stock">
+            <v-col cols="12">
+              <v-data-table
+                :headers="stockHeaders"
+                :items="stock"
+                class="elevation-1"
+                item-key="id"
+              ></v-data-table>
+            </v-col>
+          </v-window-item>
+
+          <!-- Commande Tab -->
+          <v-window-item value="commande">
+            <v-col cols="12">
+              <v-data-table
+                :headers="orderHeaders"
+                :items="selectedProductsDetails"
+                item-key="id"
+                class="elevation-1"
+              >
+                <template v-slot:[`item.orderCount`]="{ item }">
+                  <div class="d-flex justify-center align-center">
+                    <v-text-field
+                      v-model="item.orderCount"
+                      type="number"
+                      min="1"
+                      :max="item.count"
+                      label="Quantité à commander"
+                      dense
+                    ></v-text-field>
+                  </div>
+                </template>
+                <template v-slot:[`item.action`]="{ item }">
+                  <v-btn color="red" @click="removeFromOrder(item)"
+                    ><v-icon>mdi-minus</v-icon></v-btn
+                  >
+                </template>
+              </v-data-table>
+
+              <v-btn color="primary" class="mt-4" @click="orderProducts"
+                >Commander</v-btn
+              >
+            </v-col>
+          </v-window-item>
+        </v-window>
+      </v-card-text>
+    </v-card>
   </Fragment>
 </template>
 
@@ -170,11 +173,12 @@ import Swal from "sweetalert2";
 export default {
   data() {
     return {
-      menu: false,
       products: [],
+      stock: [],
+      noAvailableProducts: [],
       users: null,
       selectedProducts: [],
-      selected: "GH",
+      selected: "gh",
       name: "",
       isRead: false,
       count: 0,
@@ -190,13 +194,21 @@ export default {
         { title: "Référence", value: "reference", align: "center" },
         { title: "Actions", value: "actions", align: "center" },
       ],
+      stockHeaders: [
+        { title: "Type", value: "type", align: "center" },
+        { title: "Nom", value: "name", align: "center" },
+        { title: "Quantité", value: "count", align: "center" },
+        { title: "Conditionnement", value: "conditionnement", align: "center" },
+        { title: "Référence", value: "reference", align: "center" },
+      ],
       orderHeaders: [
-        { text: "Type", value: "type" },
-        { text: "Nom", value: "name" },
-        { text: "Quantité à commander", value: "orderCount", align: "center" },
-        { text: "Conditionnement", value: "conditionnement" },
-        { text: "Référence", value: "reference" },
-        { text: "Actions", value: "action" },
+        { title: "Type", value: "type" },
+        { title: "Nom", value: "name" },
+        { title: "Quantité à commander", value: "orderCount", align: "center" },
+        { title: "Quantité en stock", value: "stock", align: "center" },
+        { title: "Conditionnement", value: "conditionnement" },
+        { title: "Référence", value: "reference" },
+        { title: "Actions", value: "action" },
       ],
       editProductDialog: false,
       editProductForm: {
@@ -221,6 +233,7 @@ export default {
 
   mounted() {
     this.fetchProducts();
+    this.fetchStock();
   },
   methods: {
     fetchProducts() {
@@ -230,6 +243,17 @@ export default {
         )
         .then((response) => {
           this.products = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    fetchStock() {
+      axios
+        .get("https://stockapp-server-eight.vercel.app/products-stock")
+        .then((response) => {
+          this.stock = response.data;
         })
         .catch((error) => {
           console.log(error);
@@ -299,7 +323,16 @@ export default {
     },
     addToOrder(product) {
       if (!this.selectedProducts.includes(product.id)) {
-        this.selectedProducts.push(product.id);
+        const selectedStockItem = this.stock.find(
+          (p) => p.name === product.name
+        );
+
+        if (selectedStockItem) {
+          // Associate the stock count with the product
+          product.stock = selectedStockItem.count;
+        } else {
+          product.stock = "Plus disponible";
+        }
         Swal.fire({
           icon: "success",
           title: "Produit ajouté à la commande",
@@ -320,7 +353,12 @@ export default {
           showConfirmButton: false,
         });
       }
+      this.selectedProducts.push(product.id);
+      if (product.stock === "Plus disponible") {
+        this.noAvailableProducts.push(product);
+      }
     },
+
     removeFromOrder(product) {
       const index = this.selectedProducts.indexOf(product.id);
       if (index > -1) {
@@ -338,7 +376,22 @@ export default {
     },
     orderProducts() {
       const user = JSON.parse(localStorage.getItem("user"));
-      console.log("User", user);
+
+      if (this.noAvailableProducts.length > 0) {
+        Swal.fire({
+          icon: "error",
+          title: "Produit(s) non disponible(s) à la commande",
+          text: this.noAvailableProducts
+            .map((product) => product.name)
+            .join(", "),
+          toast: true,
+          timer: 3000,
+          timerProgressBar: true,
+          position: "center",
+          showConfirmButton: false,
+        });
+        return;
+      }
       if (this.selectedProducts.length === 0) {
         Swal.fire({
           icon: "error",
@@ -349,6 +402,7 @@ export default {
           position: "center",
           showConfirmButton: false,
         });
+
         return;
       }
       const orders = this.selectedProductsDetails.map((product) => ({
@@ -481,15 +535,5 @@ export default {
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-}
-
-.profile-avatar {
-  cursor: pointer;
-}
-.v-avatar {
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 </style>

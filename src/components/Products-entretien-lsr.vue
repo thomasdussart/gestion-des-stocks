@@ -38,6 +38,7 @@
     <v-card class="mt-10">
       <v-tabs v-model="tab" background-color="primary" align-tabs="center">
         <v-tab value="product">Produits</v-tab>
+        <v-tab value="stock">Stock</v-tab>
         <v-tab value="commande">Commande </v-tab
         ><v-badge :content="selectedProducts.length" color="red" class="mt-4">
         </v-badge>
@@ -115,6 +116,17 @@
             </v-card>
           </v-dialog>
 
+          <v-window-item value="stock">
+            <v-col cols="12">
+              <v-data-table
+                :headers="stockHeaders"
+                :items="stock"
+                class="elevation-1"
+                item-key="id"
+              ></v-data-table>
+            </v-col>
+          </v-window-item>
+
           <!-- Commande Tab -->
           <v-window-item value="commande">
             <v-col cols="12">
@@ -166,7 +178,7 @@ export default {
       noAvailableProducts: [],
       users: null,
       selectedProducts: [],
-      selected: "LSR",
+      selected: "lsr",
       name: "",
       isRead: false,
       count: 0,
@@ -183,11 +195,11 @@ export default {
         { title: "Actions", value: "actions", align: "center" },
       ],
       stockHeaders: [
-        { title: "Type", value: "type" },
-        { title: "Nom", value: "name" },
-        { title: "Quantité", value: "count" },
-        { title: "Conditionnement", value: "conditionnement" },
-        { title: "Référence", value: "reference" },
+        { title: "Type", value: "type", align: "center" },
+        { title: "Nom", value: "name", align: "center" },
+        { title: "Quantité", value: "count", align: "center" },
+        { title: "Conditionnement", value: "conditionnement", align: "center" },
+        { title: "Référence", value: "reference", align: "center" },
       ],
       orderHeaders: [
         { title: "Type", value: "type" },
@@ -364,20 +376,6 @@ export default {
     },
     orderProducts() {
       const user = JSON.parse(localStorage.getItem("user"));
-      if (
-        this.selectedProducts.some((product) => product.count === undefined)
-      ) {
-        Swal.fire({
-          icon: "error",
-          title: "Veuillez entrer une quantité pour chaque produit",
-          toast: true,
-          timer: 3000,
-          timerProgressBar: true,
-          position: "center",
-          showConfirmButton: false,
-        });
-        return;
-      }
 
       if (this.noAvailableProducts.length > 0) {
         Swal.fire({

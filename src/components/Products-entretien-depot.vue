@@ -6,7 +6,6 @@
     <v-btn class="mt-4 ml-4" @click="changePassword"
       >Changer le mot de passe</v-btn
     > -->
-
     <v-row justify="end" class="mr-8 mt-4">
       <v-menu
         offset-y
@@ -39,6 +38,7 @@
     <v-card class="mt-10">
       <v-tabs v-model="tab" background-color="primary" align-tabs="center">
         <v-tab value="product">Produits</v-tab>
+        <v-tab value="stock">Stock</v-tab>
         <v-tab value="commande">Commande </v-tab
         ><v-badge :content="selectedProducts.length" color="red" class="mt-4">
         </v-badge>
@@ -116,6 +116,17 @@
             </v-card>
           </v-dialog>
 
+          <v-window-item value="stock">
+            <v-col cols="12">
+              <v-data-table
+                :headers="stockHeaders"
+                :items="stock"
+                class="elevation-1"
+                item-key="id"
+              ></v-data-table>
+            </v-col>
+          </v-window-item>
+
           <!-- Commande Tab -->
           <v-window-item value="commande">
             <v-col cols="12">
@@ -163,9 +174,11 @@ export default {
   data() {
     return {
       products: [],
+      stock: [],
+      noAvailableProducts: [],
       users: null,
       selectedProducts: [],
-      selected: "Depot",
+      selected: "depot",
       name: "",
       isRead: false,
       count: 0,
@@ -181,13 +194,21 @@ export default {
         { title: "Référence", value: "reference", align: "center" },
         { title: "Actions", value: "actions", align: "center" },
       ],
+      stockHeaders: [
+        { title: "Type", value: "type", align: "center" },
+        { title: "Nom", value: "name", align: "center" },
+        { title: "Quantité", value: "count", align: "center" },
+        { title: "Conditionnement", value: "conditionnement", align: "center" },
+        { title: "Référence", value: "reference", align: "center" },
+      ],
       orderHeaders: [
-        { text: "Type", value: "type" },
-        { text: "Nom", value: "name" },
-        { text: "Quantité à commander", value: "orderCount", align: "center" },
-        { text: "Conditionnement", value: "conditionnement" },
-        { text: "Référence", value: "reference" },
-        { text: "Actions", value: "action" },
+        { title: "Type", value: "type" },
+        { title: "Nom", value: "name" },
+        { title: "Quantité à commander", value: "orderCount", align: "center" },
+        { title: "Quantité en stock", value: "stock", align: "center" },
+        { title: "Conditionnement", value: "conditionnement" },
+        { title: "Référence", value: "reference" },
+        { title: "Actions", value: "action" },
       ],
       editProductDialog: false,
       editProductForm: {
@@ -212,6 +233,7 @@ export default {
 
   mounted() {
     this.fetchProducts();
+    this.fetchStock();
   },
   methods: {
     fetchProducts() {
@@ -221,6 +243,17 @@ export default {
         )
         .then((response) => {
           this.products = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    fetchStock() {
+      axios
+        .get("https://stockapp-server-eight.vercel.app/products-stock")
+        .then((response) => {
+          this.stock = response.data;
         })
         .catch((error) => {
           console.log(error);
@@ -290,7 +323,16 @@ export default {
     },
     addToOrder(product) {
       if (!this.selectedProducts.includes(product.id)) {
-        this.selectedProducts.push(product.id);
+        const selectedStockItem = this.stock.find(
+          (p) => p.name === product.name
+        );
+
+        if (selectedStockItem) {
+          // Associate the stock count with the product
+          product.stock = selectedStockItem.count;
+        } else {
+          product.stock = "Plus disponible";
+        }
         Swal.fire({
           icon: "success",
           title: "Produit ajouté à la commande",
@@ -311,7 +353,12 @@ export default {
           showConfirmButton: false,
         });
       }
+      this.selectedProducts.push(product.id);
+      if (product.stock === "Plus disponible") {
+        this.noAvailableProducts.push(product);
+      }
     },
+
     removeFromOrder(product) {
       const index = this.selectedProducts.indexOf(product.id);
       if (index > -1) {
@@ -329,7 +376,22 @@ export default {
     },
     orderProducts() {
       const user = JSON.parse(localStorage.getItem("user"));
-      console.log("User", user);
+
+      if (this.noAvailableProducts.length > 0) {
+        Swal.fire({
+          icon: "error",
+          title: "Produit(s) non disponible(s) à la commande",
+          text: this.noAvailableProducts
+            .map((product) => product.name)
+            .join(", "),
+          toast: true,
+          timer: 3000,
+          timerProgressBar: true,
+          position: "center",
+          showConfirmButton: false,
+        });
+        return;
+      }
       if (this.selectedProducts.length === 0) {
         Swal.fire({
           icon: "error",
@@ -340,6 +402,7 @@ export default {
           position: "center",
           showConfirmButton: false,
         });
+
         return;
       }
       const orders = this.selectedProductsDetails.map((product) => ({
