@@ -216,7 +216,7 @@
                 <!-- Actions column with edit button -->
                 <template v-slot:[`item.actions`]="{ item }">
                   <v-btn @click="openDeliveryDialog(item)" color="primary">
-                    Edit
+                    <v-icon small class=""> mdi-pencil </v-icon>
                   </v-btn>
                   <v-btn
                     color="red darken-1"
@@ -235,32 +235,34 @@
                 <v-card-title> Edit Order </v-card-title>
                 <v-card-text>
                   <v-form ref="form">
+                    <v-text-field
+                      v-model="selectedItem.count"
+                      label="Quantité de livraison"
+                      type="number"
+                      min="0"
+                    ></v-text-field>
                     <!-- Status dropdown -->
                     <v-select
                       v-model="selectedItem.status"
                       :items="['En attente', 'Effectuée', 'Annulée']"
                       label="Statut"
                     ></v-select>
-                    <v-input
-                      v-model="selectedItem.count"
-                      label="Quantité demandée"
-                    ></v-input>
 
                     <!-- Delivered By dropdown -->
                     <v-select
                       v-model="selectedItem.whoDelivering"
                       :items="deliveredBy"
-                      label="Delivered By"
+                      label="Livré par"
                     ></v-select>
                   </v-form>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="green darken-1" text @click="saveDelivery"
-                    >Save</v-btn
-                  >
                   <v-btn color="red darken-1" text @click="closeDeliveryDialog"
-                    >Cancel</v-btn
+                    >Annuler</v-btn
+                  >
+                  <v-btn color="green darken-1" text @click="saveDelivery"
+                    >Sauvegarder</v-btn
                   >
                 </v-card-actions>
               </v-card>
@@ -278,6 +280,10 @@
                 :items-per-page="10"
                 item-key="id"
               >
+                <template v-slot:item.role="{ item }">
+                  <!-- Afficher le champ 'role' en majuscules -->
+                  {{ item.role.toUpperCase() }}
+                </template>
                 <template v-slot:[`item.actions`]="{ item }">
                   <v-btn color="blue darken-1" @click="editUser(item)">
                     <v-icon small class="mr-2"> mdi-pencil </v-icon>
@@ -350,8 +356,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green" @click="saveUser">Save</v-btn>
             <v-btn color="red" @click="closeSaveUserDialog">Cancel</v-btn>
+            <v-btn color="green" @click="saveUser">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -385,7 +391,7 @@ export default {
         "Emploi",
         "Saline",
       ],
-      deliveredBy: ["Bob", "Alice", "John", "Doe", "Jane", "Smith", "Doe"],
+      deliveredBy: ["Olivier", "Bernard", "Sophie"],
       name: "",
       isRead: false,
       notificationCount: 0,
