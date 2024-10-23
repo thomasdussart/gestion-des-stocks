@@ -209,10 +209,7 @@
                 item-key="product"
               >
                 <template v-slot:[`item.status`]="{ item }">
-                  <v-chip
-                    :color="item.status === 'En attente' ? 'red' : 'green'"
-                    dark
-                  >
+                  <v-chip :color="deliveryColor(item.status)" dark>
                     {{ item.status }}
                   </v-chip>
                 </template>
@@ -241,9 +238,13 @@
                     <!-- Status dropdown -->
                     <v-select
                       v-model="selectedItem.status"
-                      :items="['En attente', 'Effectuée']"
-                      label="Status"
+                      :items="['En attente', 'Effectuée', 'Annulée']"
+                      label="Statut"
                     ></v-select>
+                    <v-input
+                      v-model="selectedItem.count"
+                      label="Quantité demandée"
+                    ></v-input>
 
                     <!-- Delivered By dropdown -->
                     <v-select
@@ -418,6 +419,7 @@ export default {
       ],
       deliveryHeaders: [
         { title: "Produit", value: "product", align: "center" },
+        { title: "Quantité", value: "count", align: "center" },
         { title: "Demandé par", value: "whoAsked", align: "center" },
         { title: "Date de la demande", value: "dateOfAsking", align: "center" },
         { title: "Statut", value: "status", align: "center" },
@@ -501,6 +503,20 @@ export default {
     firstLetter() {
       return this.user.name.charAt(0).toUpperCase();
     },
+    deliveryColor() {
+      return (status) => {
+        switch (status) {
+          case "En attente":
+            return "orange";
+          case "Effectuée":
+            return "green";
+          case "Annulée":
+            return "red";
+          default:
+            return "blue";
+        }
+      };
+    },
   },
 
   mounted() {
@@ -537,6 +553,7 @@ export default {
         .patch(
           `https://stockapp-server-eight.vercel.app/livraisons/${this.selectedItem.id}`,
           {
+            count: this.selectedItem.count,
             whoDelivering: this.selectedItem.whoDelivering,
             status: this.selectedItem.status,
           }

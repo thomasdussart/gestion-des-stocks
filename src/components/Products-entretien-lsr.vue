@@ -362,10 +362,12 @@ export default {
     removeFromOrder(product) {
       const index = this.selectedProducts.indexOf(product.id);
       if (index > -1) {
+        this.noAvailableProducts.splice(index, 1);
+        console.log("remove", this.noAvailableProducts);
         this.selectedProducts.splice(index, 1);
         Swal.fire({
           icon: "success",
-          title: "Produuit retiré de la commande",
+          title: "Produit retiré de la commande",
           toast: true,
           timer: 3000,
           timerProgressBar: true,
